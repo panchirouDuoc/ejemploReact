@@ -4,6 +4,7 @@ import { Container, Row, Col, Carousel, Image } from 'react-bootstrap'
 
 export default function Home() {
     return (
+        
         <Container className="my-5 text-center">
             <Row>
                 <Col>
@@ -11,45 +12,91 @@ export default function Home() {
                     <div className="subtitle">
                         Productos frescos, naturales y sostenibles para tu hogar.
                     </div>
+                    
                 </Col>
             </Row>
             <Row className="justify-content-center">
-                <Col md={8}>
-                    <Carousel className="my-4" style={{ maxWidth: 600, margin: "auto" }}>
+                <Col md={12}>
+                    <Carousel className="my-4" style={{ maxWidth: '100%', margin: "auto" }}>
                         <Carousel.Item>
-                            <img
+                            <div style={{ width: '100%', height: '500px', position: 'relative', overflow: 'hidden' }}>
+                                <img
                                 className="d-block w-100"
-                                src="/images/envios.png"
+                                src="/images/banner3.jpg"
                                 alt="Nuestras tiendas"
-                            />
+                                style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
+                                />
+                            </div>
                         </Carousel.Item>
                         <Carousel.Item>
-                            <img
-                                className="d-block w-100"
-                                src="/images/ofertas.png"
-                                alt="ofertas"
-                            />
+                            <div style={{ width: '100%', height: '500px', position: 'relative', overflow: 'hidden' }}>
+                                <img
+                                    className="d-block w-100"
+                                    src="/images/banner2.jpg"
+                                    alt="ofertas"
+                                    style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
+                                />
+                            </div>
                         </Carousel.Item>
                         <Carousel.Item>
-                            <img
-                                className="d-block w-100"
-                                src="/images/puntos.png"
-                                alt="huertoPUNTOS"
-                            />
+                            <div style={{ width: '100%', height: '500px', position: 'relative', overflow: 'hidden' }}>
+                                <img
+                                    className="d-block w-100"
+                                    src="/images/banner.jpg"
+                                    alt="huertoPUNTOS"
+                                    style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
+                                />
+                            </div>
                         </Carousel.Item>
                     </Carousel>
                 </Col>
             </Row>
             <Container className="my-5">
-                <Row className="text-center align-items-end">
+                <Row className="text-center">
                     <Col md={6} className="mb-4">
-                        <div style={{ background: "#f3f3f3", display: "inline-block", borderRadius: "100%", padding: 10 }}>
+                        <div style={{ background: "transparent", display: "inline-block", padding: 10 }}>
+                            <h3>Envios a todo Chile</h3>
+                        <p>
+                            Realizamos envíos a todo Chile, asegurando que tus productos lleguen frescos y en perfectas condiciones, sin importar dónde te encuentres.
+                        </p>
+                            <Image
+                                src="/images/envios.png"
+                                className="shadow mb-3"
+                                alt="Logo Huerto Hogar"
+                                fluid
+                                style={{ maxHeight: 500, background: "transparent", borderRadius: "10%" }}
+                            />
+                        </div>
+                        
+                    </Col>
+                    <Col md={6} className="mb-4">
+                        <div style={{ background: "transparent", display: "inline-block", padding: 10 }}>
+                            <h3>Huerto Puntos</h3>
+                        <p>
+                            Únete a nuestro programa de fidelidad Huerto puntos y acumula puntos con cada compra para canjearlos por descuentos exclusivos y ofertas especiales.
+                        </p>
+                            <Image
+                                src="/images/puntos.png"
+                                className="shadow mb-3"
+                                alt="Logo Huerto Hogar"
+                                fluid
+                                style={{ maxHeight: 500, background: "transparent", borderRadius: "10%" }}
+                            />
+                        </div>
+                    </Col>
+                </Row>
+            </Container>
+            <Container className="my-5">
+                <Row className="text-center align-items-end">
+                
+                    <Col md={6} className="mb-4">
+                        <div style={{ background: "#ffffffff", display: "inline-block", borderRadius: "100%", padding: 10 }}>
                             <Image
                                 src="/images/logo_circulo.png"
                                 className="shadow mb-3"
                                 alt="Logo Huerto Hogar"
                                 fluid
-                                style={{ maxHeight: 500, borderRadius: "1000%", background: "transparent" }}
+                                style={{ maxHeight: 500, borderRadius: "1000%" }}
                             />
                         </div>
                         <h3>¿Quiénes somos?</h3>
@@ -68,7 +115,7 @@ export default function Home() {
                             className="rounded shadow mb-3"
                             alt="Nuestras tiendas"
                             fluid
-                            style={{ maxHeight: 500, borderRadius: "50%" }}
+                            style={{ maxHeight: 500, background: "transparent", borderRadius: "20%" }}
                         />
                     </Col>
                 </Row>

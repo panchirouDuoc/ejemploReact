@@ -1,4 +1,5 @@
 import React from 'react'
+import { Image } from 'react-bootstrap'
 
 export default function Footer() {
     return (
@@ -8,16 +9,13 @@ export default function Footer() {
                     <div className="col-md-12 text-center d-flex justify-content-center align-items-center flex-wrap">
                         <h5 className="my-2 me-4 text-white">Síguenos:</h5>
                         <a href="https://www.facebook.com" className="mx-3" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                            <i className="text-primary bi bi-facebook" style={{ fontSize: 24 }}></i>
+                            <Image src="/images/logo-fb.png" alt="Facebook" style={{ width: '24px', height: '24px' }} />
                         </a>
-                        <a href="#" className="mx-3" target="_blank" rel="noopener noreferrer" aria-label="Whatsapp">
-                            <i className="bi bi-whatsapp" style={{ fontSize: 24, color: "#25D366" }}></i>
+                        <a href="https://www.instagram.com" className="mx-3" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                            <Image src="/images/logo-instagram.jpg" alt="Instagram" style={{ width: '24px', height: '24px' }} />
                         </a>
-                        <a href="#" className="mx-3" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                            <i className="text-danger-emphasis bi bi-instagram" style={{ fontSize: 24, color: "#E4405F" }}></i>
-                        </a>
-                        <a href="mailto:tu_email@ejemplo.com" className="mx-3" aria-label="Correo electrónico">
-                            <i className="fas fa-envelope fa-2x" style={{ fontSize: 24, color: "#FFD700" }}></i>
+                        <a href="https://www.twitter.com" className="mx-3" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                            <Image src="/images/logo-x.png" alt="Twitter" style={{ width: '24px', height: '24px' }} />
                         </a>
                     </div>
                 </div>

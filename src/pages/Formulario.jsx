@@ -11,7 +11,6 @@ export default function Formulario() {
     if (!values.nombre || values.nombre.trim().length < 2) errs.nombre = "Nombre obligatorio";
     if (!values.email) errs.email = "Email obligatorio";
     else {
-      // simple email check
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!re.test(values.email)) errs.email = "Email inválido";
     }
@@ -29,7 +28,7 @@ export default function Formulario() {
     const v = validate(form);
     setErrors(v);
     if (Object.keys(v).length === 0) {
-      // guardar en localStorage como ejemplo
+
       try {
         const listaRaw = localStorage.getItem("contactos") || "[]";
         const lista = JSON.parse(listaRaw);
