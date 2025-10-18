@@ -29,7 +29,7 @@ export default function AppNavbar({cart}) {
                         Carrito{" "}
                         <Badge bg="secondary">{cart ? cart.length:0}</Badge>
                         </Nav.Link>
-                        <Nav.Link as={NavLink} to="/pedidos">Pedidos</Nav.Link>
+                        <Nav.Link as={NavLink} to="/Pedidos">Pedidos</Nav.Link>
                         <Nav.Link as={NavLink} to="/blog">Blog</Nav.Link>
                         <NavDropdown title="Más" id="masDropdown">
                             <NavDropdown.Item as={NavLink} to="/formulario">

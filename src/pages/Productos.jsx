@@ -98,7 +98,7 @@ export default function Productos({ onAdd }) {
     }
 
     return (
-        <Container>
+        <Container className="my-5 text-center">
             <h2 className="page-title">Productos</h2>
             <Row className="mb-4">
                 <Col md={6} className="mx-auto">
@@ -111,13 +111,13 @@ export default function Productos({ onAdd }) {
             </Row>
             <Row>
                 {filteredProducts.map(p => (
-                    <Col md={4} key={p.id} className="mb-5">
+                    <Col md={4} key={p.id} className="product-card mb-4">
                         <Card className="h-100">
                             <Card.Img variant="top" src={p.imagen} alt={p.nombre} />
                             <Card.Body>
                                 <Card.Title>${p.precio.toLocaleString('es-CL')}</Card.Title>
                                 <Card.Text>{p.nombre}</Card.Text>
-                                <Card.Text style={{ fontSize: 9 }}>{p.descripcion}</Card.Text>
+                                <Card.Text style={{ fontSize: 16 }}>{p.descripcion}</Card.Text>
                                 <Button onClick={() => onAdd(p)}>+ Agregar</Button>
                             </Card.Body>
                         </Card>

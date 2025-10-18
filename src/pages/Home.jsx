@@ -4,10 +4,10 @@ import { Container, Row, Col, Carousel, Image } from 'react-bootstrap'
 
 export default function Home() {
     return (
-        <Container className="my-5">
+        <Container className="my-5 text-center">
             <Row>
                 <Col>
-                    <h1>Huerto Hogar</h1>
+                    <h1 className='home-title'>Huerto Hogar</h1>
                     <div className="subtitle">
                         Productos frescos, naturales y sostenibles para tu hogar.
                     </div>

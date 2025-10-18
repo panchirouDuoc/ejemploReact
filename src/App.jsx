@@ -10,6 +10,9 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Perfil from './pages/Perfil'
 import Footer from './components/Footer'
+import Pedidos from "./pages/Pedidos.jsx";
+import Blog from "./pages/Blog.jsx";
+import Formulario from './pages/Formulario.jsx'
 
 export default function App() {
     const [carrito, setCarrito] = useState([])
@@ -44,6 +47,9 @@ export default function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/perfil" element={<Perfil />} />
+                            <Route path="/pedidos" element={<Pedidos />} />
+                            <Route path="/blog" element={<Blog />} />
+                            <Route path="/formulario" element={<Formulario />} />
                         </Routes>
                     </div>
                     <Footer />
