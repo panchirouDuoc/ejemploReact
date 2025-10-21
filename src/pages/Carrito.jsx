@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Container, Table, Button, Alert } from 'react-bootstrap'
+import { Container, Table, Button, Alert, Badge } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 
 export default function Carrito({ items, onRemove, onClear }) {
@@ -7,6 +7,11 @@ export default function Carrito({ items, onRemove, onClear }) {
     const total = useMemo(
         () => items.reduce((acc, p) => acc + (p.precio * (p.cantidad ?? 1)), 0),
         [items]
+    )
+    
+    const puntosHuerto = useMemo(
+        () => Math.floor(total * 0.02),
+        [total]
     )
 
     const handleFinalizar = () => {
@@ -19,6 +24,7 @@ export default function Carrito({ items, onRemove, onClear }) {
         const pedido = {
             productos,
             total,
+            puntosGanados: puntosHuerto,
             perfil: {
                 nombre: "",
                 correo: "",
@@ -70,11 +76,25 @@ export default function Carrito({ items, onRemove, onClear }) {
                         </tbody>
                     </Table>
                     <div className="d-flex justify-content-between align-items-center">
-                        <h5>Total: ${total.toLocaleString('es-CL')}</h5>
+                        <div>
+                            <h5 className="mb-0">Total: ${total.toLocaleString('es-CL')}</h5>
+                            <small className="text-success">
+                                <Badge bg="success" className="me-1">
+                                    <i className="bi bi-star-fill me-1"></i>
+                                    {puntosHuerto}
+                                </Badge>
+                                Puntos Huerto a ganar
+                            </small>
+                        </div>
                         <div className="d-flex gap-2">
                             <Button variant="outline-secondary" onClick={onClear}>Vaciar</Button>
                             <Button onClick={handleFinalizar}>Finalizar compra</Button>
                         </div>
+                    </div>
+                    <div className="mt-2 text-start">
+                        <small className="text-muted">
+                            * Gana 2% del valor de tu compra en HUERTO PUNTOS
+                        </small>
                     </div>
                 </>
             )}
