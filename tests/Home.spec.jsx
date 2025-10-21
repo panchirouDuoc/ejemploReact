@@ -8,17 +8,20 @@ render(<Home />);
 expect(screen.getByText("Huerto Hogar")).toBeInTheDocument();
 });
 
+it('muestra la imagen de "¿Quiénes somos?" con el src correcto', () => {
+
+ render(<Home />);
+ const images = screen.getAllByAltText("Logo Huerto Hogar");
+ const targetImage = images.find(img => img.src.includes("logo_circulo.png"));
+ expect(targetImage).toBeInTheDocument();
+
+});
+
 it("contiene un párrafo descriptivo", () => {
 render(<Home />);
 expect(screen.getByText(/Productos frescos, naturales y sostenibles para tu hogar./i)).toBeInTheDocument();
 });
 
-it('muestra la imagen de "¿Quiénes somos?" con el src correcto', () => {
-  render(<Home />);
-  const logo = screen.getByAltText("Logo Huerto Hogar");
-  expect(logo).toBeInTheDocument();
-  expect(logo.src).toContain("logo_circulo.png");
-});
 
 it("muestra la sección Nuestras tiendas", () => {
 render(<Home />);
