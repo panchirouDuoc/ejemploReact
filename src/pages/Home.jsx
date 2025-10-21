@@ -17,14 +17,14 @@ export default function Home() {
             </Row>
             <Row className="justify-content-center">
                 <Col md={12}>
-                    <Carousel className="my-4" style={{ maxWidth: '100%', margin: "auto" }}>
+                    <Carousel className="my-4" style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}>
                         <Carousel.Item>
                             <div style={{ width: '100%', height: '500px', position: 'relative', overflow: 'hidden' }}>
                                 <img
                                 className="d-block w-100"
                                 src="/images/banner3.jpg"
                                 alt="Nuestras tiendas"
-                                style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
+                                style={{ maxWidth: 3000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
                                 />
                             </div>
                         </Carousel.Item>
@@ -34,7 +34,7 @@ export default function Home() {
                                     className="d-block w-100"
                                     src="/images/banner2.jpg"
                                     alt="ofertas"
-                                    style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
+                                    style={{ maxWidth: 2000, margin: "auto", maxHeight: 335, borderRadius: "100px" }}
                                 />
                             </div>
                         </Carousel.Item>
@@ -44,7 +44,7 @@ export default function Home() {
                                     className="d-block w-100"
                                     src="/images/banner.jpg"
                                     alt="huertoPUNTOS"
-                                    style={{ maxWidth: 2000, margin: "auto", maxHeight: 400, borderRadius: "100px" }}
+                                    style={{ maxWidth: 2000, margin: "auto", maxHeight: 335, borderRadius: "100px" }}
                                 />
                             </div>
                         </Carousel.Item>

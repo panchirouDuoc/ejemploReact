@@ -39,6 +39,10 @@ export default function AppNavbar({cart}) {
                             <NavDropdown.Item as={NavLink} to="/resenias">
                                 Reseñas
                             </NavDropdown.Item>
+                            {user?.role === 'admin' && (
+                                <>
+                                <NavDropdown.Divider />
+                                <NavDropdown.Item as={NavLink} to="/admin">Panel Admin</NavDropdown.Item></>)}
                         </NavDropdown>
                     </Nav>
                     <Nav className="ms-auto mb-2 mb-lg-0">
@@ -61,7 +65,8 @@ export default function AppNavbar({cart}) {
                                 <>
                                     <NavDropdown.Item as={NavLink} to="/perfil">Mi perfil</NavDropdown.Item>
                                     <NavDropdown.Divider />
-                                    <NavDropdown.Item onClick={logout}>Cerrar sesión</NavDropdown.Item>
+                                    <NavDropdown.Item onClick={logout} as={NavLink} to={"/login"}>Cerrar sesión</NavDropdown.Item>
+                                         
                                 </>
                             ) : (
                                 <>

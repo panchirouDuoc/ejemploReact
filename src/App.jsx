@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './auth/AuthContext'
+import { AuthProvider, useAuth } from './auth/AuthContext'
 import AppNavbar from './components/AppNavbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
@@ -13,6 +13,9 @@ import Footer from './components/Footer'
 import Pedidos from "./pages/Pedidos.jsx";
 import Blog from "./pages/Blog.jsx";
 import Formulario from './pages/Formulario.jsx'
+import Resenias from './pages/resenias.jsx'
+import Admin from './pages/admin.jsx'
+
 
 export default function App() {
     const [carrito, setCarrito] = useState([])
@@ -50,6 +53,13 @@ export default function App() {
                             <Route path="/pedidos" element={<Pedidos />} />
                             <Route path="/blog" element={<Blog />} />
                             <Route path="/formulario" element={<Formulario />} />
+                            <Route path="/resenias" element={<Resenias />} />
+                            <Route path="/admin" element={
+                                <ProtectedRoute adminOnly>
+                                    <Admin />
+                                </ProtectedRoute>
+                            } />
+                            
                         </Routes>
                     </div>
                     <Footer />
