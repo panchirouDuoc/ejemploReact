@@ -19,10 +19,10 @@ export default function Register() {
         e.preventDefault()
         setError('')
 
-        // Validación del formato de correo electrónico
+        
         if (!form.correo.includes('@') || !form.correo.includes('.')) {
             setError('Por favor, ingresa un correo electrónico válido.');
-            return; // Detiene el envío si el correo no es válido
+            return; 
         }
 
         setLoading(true)
