@@ -35,7 +35,8 @@ export function AuthProvider({ children }) {
         const users = getUsers()
         const exists = users.some(u => u.username.toLowerCase() === username.toLowerCase())
         if (exists) { throw new Error('El nombre de usuario ya está en uso.') }
-        const newUser = { id: window.crypto.randomUUID(), nombre, apellido, username, correo, password, photoURL: '/images/logo-perfil.jpg' }
+        const newId = users.length + 1
+        const newUser = { id: newId, nombre, apellido, username, correo, password, photoURL: '/images/logo-perfil.jpg' }
         users.push(newUser)
         saveUsers(users)
         return { id: newUser.id, nombre, apellido, username, correo, photoURL: newUser.photoURL }
