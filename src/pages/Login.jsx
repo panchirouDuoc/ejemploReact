@@ -18,6 +18,10 @@ export default function Login() {
         setLoading(true)
         try {
             await login({ username, password })
+            if (username === 'admin') {
+                navigate('/admin')
+                return
+            }
             navigate('/')
         } catch (err) {
             setError(err.message)
