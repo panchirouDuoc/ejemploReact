@@ -7,7 +7,7 @@ import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
 export default function Register() {
     const { register, login } = useAuth()
     const navigate = useNavigate()
-    const [form, setForm] = useState({ nombre: '', apellido: '', username: '', password: '' })
+    const [form, setForm] = useState({ nombre: '', apellido: '', username: '', correo: '', password: '' })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -18,6 +18,13 @@ export default function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
+
+        // Validación del formato de correo electrónico
+        if (!form.correo.includes('@') || !form.correo.includes('.')) {
+            setError('Por favor, ingresa un correo electrónico válido.');
+            return; // Detiene el envío si el correo no es válido
+        }
+
         setLoading(true)
         try {
             await register(form)
@@ -51,6 +58,10 @@ export default function Register() {
                                 <Form.Group className="mb-3">
                                     <Form.Label>Usuario</Form.Label>
                                     <Form.Control name="username" value={form.username} onChange={onChange} required />
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Correo electrónico</Form.Label>
+                                    <Form.Control name="correo" value={form.correo} onChange={onChange} required />
                                 </Form.Group>
                                 <Form.Group className="mb-4">
                                     <Form.Label>Contraseña</Form.Label>

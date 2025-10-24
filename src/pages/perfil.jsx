@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Row, Col, Card, Form, Button, Image } from 'react-bootstrap'
+import { Container, Row, Col, Card, Form, Button, Image, Alert } from 'react-bootstrap'
 import { useAuth } from '../auth/AuthContext'
 
 export default function Perfil() {
-    const { user } = useAuth()
+    const { user, updateUser } = useAuth()
     const [foto, setFoto] = useState('/images/logo-perfil.jpg')
+    const [message, setMessage] = useState('')
+    const [loading, setLoading] = useState(false)
     const [form, setForm] = useState({
+        username: '',
         nombre: '',
+        apellido: '',
         correo: '',
         direccion: '',
         telefono: ''
     })
 
-
     useEffect(() => {
         if (user) {
             setForm({
+                username: user.username || '',
                 nombre: user.nombre || '',
+                apellido: user.apellido || '',
                 correo: user.correo || '',
                 direccion: user.direccion || '',
                 telefono: user.telefono || ''
             })
+            if (user.photoURL) {
+                setFoto(user.photoURL)
+            }
         }
     }, [user])
 
@@ -37,9 +45,20 @@ export default function Perfil() {
         setForm({ ...form, [e.target.name]: e.target.value })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        alert('Cambios guardados (simulado)')
+        setMessage('')
+        setLoading(true)
+        try {
+            const dataToUpdate = { ...form, photoURL: foto };
+            await updateUser(dataToUpdate)
+            setMessage('¡Perfil actualizado con éxito!')
+            setTimeout(() => setMessage(''), 3000)
+        } catch (error) {
+            setMessage(`Error al actualizar: ${error.message}`)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -48,6 +67,7 @@ export default function Perfil() {
             <Row className="justify-content-center">
                 <Col md={8} lg={6}>
                     <Card className="p-4">
+                        {message && <Alert variant={message.startsWith('Error') ? 'danger' : 'success'}>{message}</Alert>}
                         <div className="text-center mb-4">
                             <Image
                                 src={foto}
@@ -73,11 +93,11 @@ export default function Perfil() {
                             <Form.Group className="mb-3">
                                 <Form.Label>Usuario</Form.Label>
                                 <Form.Control
-                                    type="text"
-                                    name="user"
-                                    value={form.user}
+                                    type="text" 
+                                    name="username"
+                                    value={form.username || ''}
                                     onChange={handleChange}
-                                    placeholder="jijijaja"
+                                    readOnly
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
@@ -95,7 +115,7 @@ export default function Perfil() {
                                 <Form.Control
                                     type="text"
                                     name="apellido"
-                                    value={form.apellido}
+                                    value={form.apellido || ''}
                                     onChange={handleChange}
                                     placeholder="lorca"
                                 />
@@ -105,7 +125,7 @@ export default function Perfil() {
                                 <Form.Control
                                     type="email"
                                     name="correo"
-                                    value={form.correo}
+                                    value={form.correo || ''}
                                     onChange={handleChange}
                                     placeholder="Ej: usuario@email.com"
                                 />
@@ -115,7 +135,7 @@ export default function Perfil() {
                                 <Form.Control
                                     type="text"
                                     name="direccion"
-                                    value={form.direccion}
+                                    value={form.direccion || ''}
                                     onChange={handleChange}
                                     placeholder="Ej: Calle Falsa 123, Santiago"
                                 />
@@ -125,13 +145,13 @@ export default function Perfil() {
                                 <Form.Control
                                     type="tel"
                                     name="telefono"
-                                    value={form.telefono}
+                                    value={form.telefono || ''}
                                     onChange={handleChange}
                                     placeholder="+569 XXXX XXXX"
                                 />
                             </Form.Group>
                             <div className="d-grid">
-                                <Button type="submit" variant="success">Guardar Cambios</Button>
+                                <Button type="submit" variant="success" disabled={loading}>{loading ? 'Guardando...' : 'Guardar Cambios'}</Button>
                             </div>
                         </Form>
                     </Card>

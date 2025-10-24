@@ -31,14 +31,14 @@ export function AuthProvider({ children }) {
     }
 
 
-    const register = ({ nombre, apellido, username, password }) => {
+    const register = ({ nombre, apellido, username, correo, password }) => {
         const users = getUsers()
         const exists = users.some(u => u.username.toLowerCase() === username.toLowerCase())
         if (exists) { throw new Error('El nombre de usuario ya está en uso.') }
-        const newUser = { id: crypto.randomUUID(), nombre, apellido, username, password }
+        const newUser = { id: crypto.randomUUID(), nombre, apellido, username, correo, password, photoURL: '/images/logo-perfil.jpg' }
         users.push(newUser)
         saveUsers(users)
-        return { id: newUser.id, nombre, apellido, username }
+        return { id: newUser.id, nombre, apellido, username, correo, photoURL: newUser.photoURL }
     }
 
 
@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
         const users = getUsers()
         const match = users.find(u => u.username === username && u.password === password)
         if (!match) { throw new Error('Usuario o contraseña inválidos.') }
-        const sessionUser = { id: match.id, nombre: match.nombre, apellido: match.apellido, username: match.username }
+        const sessionUser = { id: match.id, nombre: match.nombre, apellido: match.apellido, username: match.username, correo: match.correo, photoURL: match.photoURL }
         setUser(sessionUser)
         localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser))
         return sessionUser
@@ -66,7 +66,24 @@ export function AuthProvider({ children }) {
         localStorage.removeItem(SESSION_KEY)
     }
 
+    const updateUser = (updatedData) => {
+        if (!user) throw new Error("No hay usuario en sesión");
 
-    const value = { user, register, login, logout }
+        const users = getUsers();
+        const userIndex = users.findIndex(u => u.id === user.id);
+
+        if (userIndex === -1) throw new Error("Usuario no encontrado");
+        
+        const updatedUser = { ...users[userIndex], ...updatedData };
+        users[userIndex] = updatedUser;
+        saveUsers(users);
+
+        const newSessionUser = { ...user, ...updatedData };
+        setUser(newSessionUser);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(newSessionUser));
+    };
+
+
+    const value = { user, register, login, logout, updateUser }
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
