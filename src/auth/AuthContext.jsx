@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
 
         if (!response.ok) {
             const errorMsg = await response.text();
-            throw new Error(errorMsg || 'Credenciales inválidas1');
+            throw new Error(errorMsg || 'Credenciales inválidas');
         }
 
         const { token } = await response.json();
