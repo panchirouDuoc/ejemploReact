@@ -17,8 +17,12 @@ export default function Login() {
         setError('')
         setLoading(true)
         try {
-            await login({ username, password })
-            navigate('/')
+            const loggedInUser = await login({ username, password })
+            if (loggedInUser.rol === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError(err.message)
         } finally {

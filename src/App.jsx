@@ -15,6 +15,9 @@ import Blog from "./pages/Blog.jsx";
 import Formulario from './pages/Formulario.jsx'
 import Resenias from './pages/resenias.jsx'
 import Admin from './pages/admin.jsx'
+import ProductoList from './components/ProductoList.jsx'
+import ProductoForm from './components/ProductoForm.jsx'
+import CategoriaList from './components/CategoriaList.jsx'
 
 
 export default function App() {
@@ -58,7 +61,12 @@ export default function App() {
                                 <ProtectedRoute adminOnly>
                                     <Admin />
                                 </ProtectedRoute>
-                            } />
+                            } >
+                                <Route path="productos" element={<ProductoList />} />
+                                <Route path="productos/add" element={<ProductoForm />} />
+                                <Route path="productos/edit/:id" element={<ProductoForm />} />
+                                <Route path="categorias" element={<CategoriaList />} />
+                            </Route>
                             
                         </Routes>
                     </div>
