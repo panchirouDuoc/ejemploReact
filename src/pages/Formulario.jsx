@@ -5,7 +5,7 @@ export default function Formulario() {
   const [form, setForm] = useState({ nombre: "", email: "", mensaje: "" });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-
+  const [submitError, setSubmitError] = useState("");
   const validate = (values) => {
     const errs = {};
     if (!values.nombre || values.nombre.trim().length < 2) errs.nombre = "Nombre obligatorio";
@@ -21,25 +21,40 @@ export default function Formulario() {
   const handleChange = (e) => {
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: undefined }));
+    setSubmitError("");
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const v = validate(form);
     setErrors(v);
-    if (Object.keys(v).length === 0) {
 
+ 
+    if (Object.keys(v).length === 0) {
       try {
-        const listaRaw = localStorage.getItem("contactos") || "[]";
-        const lista = JSON.parse(listaRaw);
-        lista.push({ ...form, fecha: new Date().toISOString() });
-        localStorage.setItem("contactos", JSON.stringify(lista));
-      } catch (err) {
-        console.warn("No se pudo guardar en localStorage", err);
+        const response = await fetch('http://localhost:8080/api/formularios', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(form),
+        });
+
+        if (!response.ok) {
+          throw new Error('Hubo un problema al enviar el mensaje. Inténtalo de nuevo.');
+        }
+
+
+        setSubmitted(true);
+        setSubmitError("");
+        setForm({ nombre: "", email: "", mensaje: "" }); 
+        setTimeout(() => setSubmitted(false), 4000);
+
+      } catch (error) {
+        console.error("Error al enviar el formulario:", error);
+        setSubmitError(error.message || "No se pudo conectar con el servidor.");
       }
-      setSubmitted(true);
-      setForm({ nombre: "", email: "", mensaje: "" });
-      setTimeout(() => setSubmitted(false), 4000);
     }
   };
 
@@ -52,6 +67,7 @@ export default function Formulario() {
 
           <Form noValidate onSubmit={handleSubmit} className="mt-4">
             {submitted && <Alert variant="success">Mensaje enviado. Gracias por contactarnos.</Alert>}
+            {submitError && <Alert variant="danger">{submitError}</Alert>}
 
             <Form.Group className="mb-3 text-start" controlId="nombre">
               <Form.Label>Nombre</Form.Label>

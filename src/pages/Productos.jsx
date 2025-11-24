@@ -13,7 +13,7 @@ export default function Productos({ onAdd }) {
         ProductoService.getAllProductos()
             .then(response => {
                 setAllProducts(response.data);
-                setFilteredProducts(response.data); // Mostrar todos los productos inicialmente
+                setFilteredProducts(response.data);
             })
             .catch(error => console.error("Error al cargar los productos:", error));
 

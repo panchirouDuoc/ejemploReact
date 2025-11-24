@@ -2,19 +2,28 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, ListGroup, Badge, Alert } from "react-bootstrap";
 
 export default function Resenias() {
-  const STORAGE_KEY = "resenias";
   const [reviews, setReviews] = useState([]);
   const [form, setForm] = useState({ nombre: "", comentario: "", estrellas: "" });
   const [errors, setErrors] = useState({});
-  const [saved, setSaved] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ saved: false, error: "" });
 
+  
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setReviews(JSON.parse(raw));
-    } catch (err) {
-      console.warn("No se pudo leer reseñas desde localStorage", err);
-    }
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/resenas');
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar las reseñas.');
+        }
+        const data = await response.json();
+        setReviews(data);
+      } catch (err) {
+        console.error("Error al obtener reseñas:", err);
+        setSubmitStatus(s => ({ ...s, error: err.message }));
+      }
+    };
+
+    fetchReviews();
   }, []);
 
   const validate = (values) => {
@@ -29,94 +38,73 @@ export default function Resenias() {
     const { name, value } = ev.target;
     setForm((s) => ({ ...s, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
+    setSubmitStatus({ saved: false, error: "" });
   };
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
     const v = validate(form);
     setErrors(v);
     if (Object.keys(v).length > 0) return;
 
-    const nueva = {
-      id: Date.now(),
-      nombre: form.nombre.trim(),
-      comentario: form.comentario.trim(),
-      estrellas: Number(form.estrellas),
-      fecha: new Date().toISOString(),
-    };
-
-    const updated = [nueva, ...reviews];
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      setReviews(updated);
+      const response = await fetch('http://localhost:8080/api/resenas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...form,
+          estrellas: Number(form.estrellas)
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Hubo un problema al enviar tu reseña.');
+      }
+
+      const nuevaResena = await response.json();
+
+      setReviews([nuevaResena, ...reviews]);
       setForm({ nombre: "", comentario: "", estrellas: "" });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      setSubmitStatus({ saved: true, error: "" });
+      setTimeout(() => setSubmitStatus(s => ({ ...s, saved: false })), 3000);
+
     } catch (err) {
-      console.warn("No se pudo guardar la reseña", err);
+      console.error("No se pudo guardar la reseña:", err);
+      setSubmitStatus({ saved: false, error: err.message });
     }
   };
 
-  const formatDate = (iso) => {
-    try {
-      return new Date(iso).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "short" });
-    } catch {
-      return iso;
-    }
-  };
-
+  const formatDate = (iso) => new Date(iso).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "short" });
   const renderStars = (n) => "★".repeat(n) + "☆".repeat(Math.max(0, 5 - n));
 
   return (
     <Container className="my-4">
-      <Row>
-        <Col>
-          <h1 className="text-center navbar-brand">Reseñas de Clientes</h1>
-        </Col>
-      </Row>
+      <h1 className="text-center navbar-brand">Reseñas de Clientes</h1>
 
       <Row className="my-3">
         <Col md={6}>
           <Card className="shadow p-3">
             <Card.Body>
               <Card.Title>Deja tu reseña</Card.Title>
-              {saved && <Alert variant="success">Reseña enviada. ¡Gracias!</Alert>}
+              {submitStatus.saved && <Alert variant="success">Reseña enviada. ¡Gracias!</Alert>}
+              {submitStatus.error && <Alert variant="danger">{submitStatus.error}</Alert>}
               <Form id="reviewForm" onSubmit={handleSubmit} noValidate>
+                {/* ... (El resto del formulario no cambia) ... */}
                 <Form.Group className="mb-3" controlId="nombre">
                   <Form.Label>Tu nombre</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="nombre"
-                    value={form.nombre}
-                    onChange={handleChange}
-                    isInvalid={!!errors.nombre}
-                    placeholder="Tu nombre"
-                  />
+                  <Form.Control type="text" name="nombre" value={form.nombre} onChange={handleChange} isInvalid={!!errors.nombre} placeholder="Tu nombre" />
                   <Form.Control.Feedback type="invalid">{errors.nombre}</Form.Control.Feedback>
                 </Form.Group>
-
                 <Form.Group className="mb-3" controlId="comentario">
                   <Form.Label>Comentario</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    name="comentario"
-                    value={form.comentario}
-                    onChange={handleChange}
-                    isInvalid={!!errors.comentario}
-                    placeholder="Escribe tu opinión..."
-                  />
+                  <Form.Control as="textarea" rows={3} name="comentario" value={form.comentario} onChange={handleChange} isInvalid={!!errors.comentario} placeholder="Escribe tu opinión..." />
                   <Form.Control.Feedback type="invalid">{errors.comentario}</Form.Control.Feedback>
                 </Form.Group>
-
                 <Form.Group className="mb-3" controlId="estrellas">
                   <Form.Label>Calificación</Form.Label>
-                  <Form.Select
-                    name="estrellas"
-                    value={form.estrellas}
-                    onChange={handleChange}
-                    isInvalid={!!errors.estrellas}
-                  >
+                  <Form.Select name="estrellas" value={form.estrellas} onChange={handleChange} isInvalid={!!errors.estrellas}>
                     <option value="">Selecciona estrellas</option>
                     <option value="1">1 — ⭐</option>
                     <option value="2">2 — ⭐⭐</option>
@@ -126,18 +114,9 @@ export default function Resenias() {
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">{errors.estrellas}</Form.Control.Feedback>
                 </Form.Group>
-
                 <div className="d-flex gap-2">
                   <Button type="submit">Enviar reseña</Button>
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => {
-                      setForm({ nombre: "", comentario: "", estrellas: "" });
-                      setErrors({});
-                    }}
-                  >
-                    Limpiar
-                  </Button>
+                  <Button variant="outline-secondary" onClick={() => { setForm({ nombre: "", comentario: "", estrellas: "" }); setErrors({}); }}>Limpiar</Button>
                 </div>
               </Form>
             </Card.Body>
@@ -147,7 +126,7 @@ export default function Resenias() {
         <Col md={6}>
           <h3 className="mb-3">Reseñas recientes</h3>
           <ListGroup id="reviewsList">
-            {reviews.length === 0 && (
+            {reviews.length === 0 && !submitStatus.error && (
               <ListGroup.Item className="text-muted">Aún no hay reseñas. Sé el primero en opinar.</ListGroup.Item>
             )}
             {reviews.map((r) => (

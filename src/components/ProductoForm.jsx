@@ -29,7 +29,6 @@ const ProductoForm = () => {
             });
         }
 
-        // Cargar categorías dinámicamente
         axios.get('http://localhost:8080/api/categorias')
             .then(response => setCategorias(response.data))
             .catch(error => console.error("Error al cargar categorías:", error));
@@ -42,13 +41,13 @@ const ProductoForm = () => {
 
         if (id) {
             ProductoService.updateProducto(id, producto).then(() => {
-                navigate('/admin/productos'); // Redirige a la lista de productos
+                navigate('/admin/productos');
             }).catch(error => {
                 console.log("Error al actualizar el producto:", error);
             });
         } else {
             ProductoService.createProducto(producto).then(() => {
-                navigate('/admin/productos'); // Redirige a la lista de productos
+                navigate('/admin/productos');
             }).catch(error => {
                 console.log("Error al crear el producto:", error);
             });
@@ -93,7 +92,6 @@ const ProductoForm = () => {
                                         required
                                     >
                                         {categorias.map(cat => (
-                                            // Usamos cat.nombre porque así viene de la BD
                                             <option key={cat.id} value={cat.nombre}>{cat.nombre}</option>
                                         ))}
                                     </Form.Select>
@@ -118,7 +116,7 @@ const ProductoForm = () => {
                                         value={imagen}
                                         onChange={(e) => setImagen(e.target.value)}
                                     />
-                                    <Form.Text className="text-muted">La ruta debe ser relativa a la carpeta 'public' de tu proyecto.</Form.Text>
+                                    <Form.Text className="text-muted"></Form.Text>
                                 </Form.Group>
                                 <Button variant="primary" type="submit">{id ? 'Actualizar Producto' : 'Guardar Producto'}</Button>
                             </Form>

@@ -1,6 +1,12 @@
 import React from "react";
-import { Container, Row, Col, Nav } from "react-bootstrap";
-import { Outlet, Link } from "react-router-dom";
+import { Container, Row, Col, Nav, Card } from "react-bootstrap";
+import { Outlet, Link, useLocation } from "react-router-dom";
+
+function AdminHome() {
+  return (
+    <Card body>Bienvenido al panel de administración. Selecciona una opción del menú para comenzar.</Card>
+  );
+}
 
 export default function Admin() {
   return (
@@ -24,7 +30,7 @@ export default function Admin() {
           </Nav>
         </Col>
         <Col md={9}>
-          <Outlet />
+          {useLocation().pathname === "/admin" ? <AdminHome /> : <Outlet />}
         </Col>
       </Row>
     </Container>

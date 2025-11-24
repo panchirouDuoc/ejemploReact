@@ -6,7 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 const CategoriaList = () => {
     const [categorias, setCategorias] = useState([]);
     const [nombreNuevaCategoria, setNombreNuevaCategoria] = useState('');
-    const { user } = useAuth(); // 1. Obtenemos el usuario (y su token) del contexto
+    const { user } = useAuth();
     
     const fetchCategorias = () => {
         axios.get('http://localhost:8080/api/categorias')
@@ -21,7 +21,6 @@ const CategoriaList = () => {
     const handleAddCategoria = (e) => {
         e.preventDefault();
         if (!nombreNuevaCategoria.trim()) return;
-        // 2. Añadimos la configuración con el token a la petición POST
         axios.post('http://localhost:8080/api/categorias', { nombre: nombreNuevaCategoria }, {
             headers: {
                 'Authorization': `Bearer ${user.token}`
@@ -36,7 +35,6 @@ const CategoriaList = () => {
 
     const handleDeleteCategoria = (id) => {
         if (window.confirm('¿Estás seguro de que quieres eliminar esta categoría? Esto podría afectar a los productos existentes.')) {
-            // 3. Añadimos la configuración con el token a la petición DELETE
             axios.delete(`http://localhost:8080/api/categorias/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`

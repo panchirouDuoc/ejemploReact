@@ -1,210 +1,166 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, ProgressBar, Button, Image } from "react-bootstrap";
+import { Container, Row, Col, Card, ProgressBar, Button, Image, Alert } from "react-bootstrap";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Pedidos() {
-
-  const [pedido, setPedido] = useState(null);
-  const [status, setStatus] = useState("none");
-  const [orderNumber, setOrderNumber] = useState(null);
-  const [fechaConfirmacion, setFechaConfirmacion] = useState(null);
+  const [pedidos, setPedidos] = useState([]);
+  const [pedidoActivo, setPedidoActivo] = useState(null);
+  const [error, setError] = useState("");
+  const { user, isAuthenticated } = useAuth(); 
 
   useEffect(() => {
-
-    try {
-      const raw = localStorage.getItem("pedido");
-      if (!raw) {
-        setPedido(null);
-        setStatus("none");
+    const fetchPedidos = async () => {
+      if (!isAuthenticated || !user) {
+        setError("No estás autenticado.");
         return;
       }
-      const parsed = JSON.parse(raw);
-      setPedido(parsed);
 
-      const s = parsed?.status ?? "confirmado";
-      const map = {
-        confirmado: "confirmado",
-        preparado: "preparado",
-        enviado: "enviado",
-        entregado: "entregado",
-      };
-      setStatus(map[s] ?? "confirmado");
+      try {
+        const response = await fetch(`http://localhost:8080/api/pedidos/usuario/${user.id}`, {
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+          },
+        });
 
+        if (!response.ok) {
+          throw new Error("No se pudieron cargar los pedidos.");
+        }
 
-      const n = parsed?.numeroPedido ?? Math.floor(Math.random() * 1000000);
-      setOrderNumber(n);
+        const data = await response.json();
+        setPedidos(data);
+        const ultimoPedido = data.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion))
+                                 .find(p => p.estado !== 'ENTREGADO' && p.estado !== 'CANCELADO');
+        setPedidoActivo(ultimoPedido || (data.length > 0 ? data[0] : null));
+        setError("");
 
+      } catch (err) {
+        console.error("Error al obtener pedidos:", err);
+        setError(err.message);
+      }
+    };
 
-      setFechaConfirmacion(parsed?.fechaConfirmacion ?? new Date().toISOString());
+    fetchPedidos();
+  }, [isAuthenticated, user]);
+
+  
+  const handleUpdateStatus = async (newStatus) => {
+    if (!pedidoActivo) return;
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/pedidos/${pedidoActivo.id}/estado`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ estado: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al actualizar el estado a ${newStatus}.`);
+      }
+
+      const pedidoActualizado = await response.json();
+      setPedidoActivo(pedidoActualizado);
+      setPedidos(pedidos.map(p => p.id === pedidoActualizado.id ? pedidoActualizado : p));
+      setError("");
+
     } catch (err) {
-      console.error("Error parseando pedido desde localStorage", err);
-      setPedido(null);
-      setStatus("none");
-    }
-  }, []);
-
-
-  const formatCurrency = (value) => {
-    try {
-      return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(value);
-    } catch {
-      return "$" + (value ?? 0);
+      console.error("Error al actualizar estado:", err);
+      setError(err.message);
     }
   };
 
-  const formatDate = (iso) => {
-    try {
-      const d = new Date(iso);
-      return d.toLocaleString("es-CL");
-    } catch {
-      return iso ?? "-";
-    }
-  };
+  // Funciones auxiliares (sin cambios)
+  const formatCurrency = (value) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(value || 0);
+  const formatDate = (iso) => new Date(iso).toLocaleString("es-CL");
 
+  
   const statusToProgress = {
-    none: { now: 0, label: "Sin iniciar" },
-    confirmado: { now: 33, label: "Confirmado" },
-    preparado: { now: 66, label: "En preparación" },
-    enviado: { now: 90, label: "Enviado" },
-    entregado: { now: 100, label: "Entregado" },
+    PENDIENTE: { now: 20, label: "Pendiente" },
+    PROCESANDO: { now: 40, label: "Procesando" },
+    ENVIADO: { now: 75, label: "Enviado" },
+    ENTREGADO: { now: 100, label: "Entregado" },
+    CANCELADO: { now: 100, label: "Cancelado", variant: "danger" },
   };
+  
+  const estadoActual = pedidoActivo?.estado ?? 'PENDIENTE';
+  const progressInfo = statusToProgress[estadoActual] || { now: 0, label: "Desconocido" };
 
-  const saveStatus = (newStatus) => {
-    setStatus(newStatus);
-
-    try {
-      if (!pedido) return;
-      const copia = { ...pedido, status: newStatus };
-      localStorage.setItem("pedido", JSON.stringify(copia));
-      setPedido(copia);
-    } catch (err) {
-      console.warn("No se pudo guardar el estado en localStorage", err);
-    }
-  };
-
-  const handlePreparar = () => saveStatus("preparado");
-  const handleEnviar = () => saveStatus("enviado");
-  const handleEntregar = () => saveStatus("entregado");
-
-
-  const productosList = (pedido?.productos ?? []).map((p, i) => {
-    const nombre = p?.nombre ?? "Producto";
-    const cantidad = p?.cantidad ?? 1;
-    const precio = p?.precio ?? 0;
-    return (
-      <div key={i}>
-        {nombre} x{cantidad} ({formatCurrency(precio)})
-      </div>
-    );
-  });
-
-  const total = pedido?.total ?? (pedido?.productos ? pedido.productos.reduce((s, x) => s + ((x?.precio ?? 0) * (x?.cantidad ?? 1)), 0) : 0);
+  
+  const productosList = (pedidoActivo?.items ?? []).map((p) => (
+    <div key={p.id}>
+      {p.nombreProducto} x{p.cantidad} ({formatCurrency(p.precio)})
+    </div>
+  ));
 
   return (
     <Container className="my-5">
-      <Row>
-        <Col>
-          <h1>Seguimiento de Pedidos</h1>
-          <div className="subtitle">Procesa y sigue el estado de tus pedidos</div>
-        </Col>
-      </Row>
+      <h1>Seguimiento de Pedidos</h1>
+      <div className="subtitle">Procesa y sigue el estado de tus pedidos</div>
+      
+      {error && <Alert variant="danger" className="mt-4">{error}</Alert>}
 
       <Row className="my-4">
         <Col md={8}>
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Boleta</Card.Title>
-              <div id="boleta" className="mt-3">
-                {pedido ? (
-                  <div className="alert alert-info">
-                    <strong>Boleta generada:</strong>
-                    <br />
-                    N°: {orderNumber}
-                    <br />
-                    Fecha: {formatDate(fechaConfirmacion)}
-                    <br />
-                    Estado: {status}
-                    <br />
-                    <hr />
-                    <strong>Datos de facturación:</strong>
-                    <br />
-                    Nombre: {pedido?.perfil?.nombre ?? "-"}
-                    <br />
-                    Correo: {pedido?.perfil?.correo ?? "-"}
-                    <br />
-                    Dirección: {pedido?.perfil?.direccion ?? "-"}
-                    <br />
-                    Teléfono: {pedido?.perfil?.telefono ?? "-"}
-                    <br />
+          {pedidoActivo ? (
+            <>
+              <Card className="mb-4">
+                <Card.Body>
+                  <Card.Title>Boleta</Card.Title>
+                  <div className="alert alert-info mt-3">
+                    <strong>Boleta generada:</strong><br />
+                    N°: {pedidoActivo.id}<br />
+                    Fecha: {formatDate(pedidoActivo.fechaCreacion)}<br />
+                    Estado: {pedidoActivo.estado}<br />
                     <hr />
                     <strong>Productos:</strong>
-                    <div className="mt-2">{productosList.length ? productosList : <div>-</div>}</div>
-                    <br />
-                    <strong>Total: {formatCurrency(total)}</strong>
+                    <div className="mt-2">{productosList.length ? productosList : <div>-</div>}</div><br />
+                    <strong>Total: {formatCurrency(pedidoActivo.total)}</strong>
                   </div>
-                ) : (
-                  <div className="alert alert-warning">No hay pedido confirmado.</div>
+                </Card.Body>
+              </Card>
+
+              <Card className="mb-4">
+                <Card.Body>
+                  <Card.Title>Estado del Pedido</Card.Title>
+                  <div className="mb-3">Pedido {pedidoActivo.estado}.</div>
+                  <ProgressBar
+                    now={progressInfo.now}
+                    label={progressInfo.label}
+                    variant={progressInfo.variant || 'primary'}
+                    style={{ height: "30px" }}
+                    animated striped
+                  />
+                </Card.Body>
+              </Card>
+
+              
+              <div className="d-flex gap-2">
+                {estadoActual === "PENDIENTE" && (
+                  <Button variant="primary" onClick={() => handleUpdateStatus('PROCESANDO')}>
+                    Marcar como Procesando
+                  </Button>
+                )}
+                {estadoActual === "PROCESANDO" && (
+                  <Button variant="warning" onClick={() => handleUpdateStatus('ENVIADO')}>
+                    Marcar como Enviado
+                  </Button>
+                )}
+                {estadoActual === "ENVIADO" && (
+                  <Button variant="success" onClick={() => handleUpdateStatus('ENTREGADO')}>
+                    Marcar como Entregado
+                  </Button>
                 )}
               </div>
-            </Card.Body>
-          </Card>
-
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Estado del Pedido</Card.Title>
-              <div id="estadoPedido" className="mb-3">
-                {pedido ? `Pedido ${status}.` : "Sin pedido confirmado."}
-              </div>
-
-              <label className="form-label">Rastreo de pedido:</label>
-              <ProgressBar
-                now={statusToProgress[status]?.now ?? 0}
-                label={statusToProgress[status]?.label ?? ""}
-                style={{ height: "30px" }}
-                animated
-                striped
-              />
-            </Card.Body>
-          </Card>
-
-          <div className="d-flex gap-2">
-           
-            {pedido && status === "confirmado" && (
-              <Button id="prepararPedido" variant="primary" onClick={handlePreparar}>
-                Preparar pedido
-              </Button>
-            )}
-            {pedido && status === "preparado" && (
-              <Button id="enviarPedido" variant="warning" onClick={handleEnviar}>
-                Enviar pedido
-              </Button>
-            )}
-            {pedido && status === "enviado" && (
-              <Button id="entregarPedido" variant="success" onClick={handleEntregar}>
-                Entregar pedido
-              </Button>
-            )}
-            
-            {pedido && status === "entregado" && (
-              <Button variant="outline-secondary" onClick={() => {
-                
-                localStorage.removeItem("pedido");
-                setPedido(null);
-                setStatus("none");
-              }}>
-                Finalizar (limpiar)
-              </Button>
-            )}
-          </div>
+            </>
+          ) : (
+            <Alert variant="warning">No hay pedidos activos para mostrar.</Alert>
+          )}
         </Col>
 
         <Col md={4}>
-          <Card className="text-center">
-            <Card.Body>
-              <Image src="/images/logo_circulo.png" roundedCircle fluid style={{ maxWidth: 120 }} className="mb-3" />
-              <Card.Title>Huerto Hogar</Card.Title>
-              <Card.Text className="muted">Nuestro compromiso: entrega fresca y a tiempo</Card.Text>
-            </Card.Body>
-          </Card>
+        
         </Col>
       </Row>
     </Container>
