@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, ListGroup, Badge, Alert } from "react-bootstrap";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Resenias() {
   const [reviews, setReviews] = useState([]);
   const [form, setForm] = useState({ nombre: "", comentario: "", estrellas: "" });
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState({ saved: false, error: "" });
+  const { user, isAuthenticated } = useAuth();
 
   
   useEffect(() => {
@@ -24,7 +26,11 @@ export default function Resenias() {
     };
 
     fetchReviews();
-  }, []);
+
+    if (isAuthenticated && user) {
+      setForm(f => ({ ...f, nombre: user.nombre || user.username || "" }));
+    }
+  }, [isAuthenticated, user]);
 
   const validate = (values) => {
     const e = {};
@@ -52,6 +58,7 @@ export default function Resenias() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
         },
         body: JSON.stringify({
           ...form,
@@ -85,42 +92,45 @@ export default function Resenias() {
 
       <Row className="my-3">
         <Col md={6}>
-          <Card className="shadow p-3">
-            <Card.Body>
-              <Card.Title>Deja tu reseña</Card.Title>
-              {submitStatus.saved && <Alert variant="success">Reseña enviada. ¡Gracias!</Alert>}
-              {submitStatus.error && <Alert variant="danger">{submitStatus.error}</Alert>}
-              <Form id="reviewForm" onSubmit={handleSubmit} noValidate>
-                {/* ... (El resto del formulario no cambia) ... */}
-                <Form.Group className="mb-3" controlId="nombre">
-                  <Form.Label>Tu nombre</Form.Label>
-                  <Form.Control type="text" name="nombre" value={form.nombre} onChange={handleChange} isInvalid={!!errors.nombre} placeholder="Tu nombre" />
-                  <Form.Control.Feedback type="invalid">{errors.nombre}</Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="comentario">
-                  <Form.Label>Comentario</Form.Label>
-                  <Form.Control as="textarea" rows={3} name="comentario" value={form.comentario} onChange={handleChange} isInvalid={!!errors.comentario} placeholder="Escribe tu opinión..." />
-                  <Form.Control.Feedback type="invalid">{errors.comentario}</Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="estrellas">
-                  <Form.Label>Calificación</Form.Label>
-                  <Form.Select name="estrellas" value={form.estrellas} onChange={handleChange} isInvalid={!!errors.estrellas}>
-                    <option value="">Selecciona estrellas</option>
-                    <option value="1">1 — ⭐</option>
-                    <option value="2">2 — ⭐⭐</option>
-                    <option value="3">3 — ⭐⭐⭐</option>
-                    <option value="4">4 — ⭐⭐⭐⭐</option>
-                    <option value="5">5 — ⭐⭐⭐⭐⭐</option>
-                  </Form.Select>
-                  <Form.Control.Feedback type="invalid">{errors.estrellas}</Form.Control.Feedback>
-                </Form.Group>
-                <div className="d-flex gap-2">
-                  <Button type="submit">Enviar reseña</Button>
-                  <Button variant="outline-secondary" onClick={() => { setForm({ nombre: "", comentario: "", estrellas: "" }); setErrors({}); }}>Limpiar</Button>
-                </div>
-              </Form>
-            </Card.Body>
-          </Card>
+          {isAuthenticated ? (
+            <Card className="shadow p-3">
+              <Card.Body>
+                <Card.Title>Deja tu reseña</Card.Title>
+                {submitStatus.saved && <Alert variant="success">Reseña enviada. ¡Gracias!</Alert>}
+                {submitStatus.error && <Alert variant="danger">{submitStatus.error}</Alert>}
+                <Form id="reviewForm" onSubmit={handleSubmit} noValidate>
+                  <Form.Group className="mb-3" controlId="nombre">
+                    <Form.Label>Tu nombre</Form.Label>
+                    <Form.Control type="text" name="nombre" value={form.nombre} onChange={handleChange} isInvalid={!!errors.nombre} placeholder="Tu nombre" readOnly />
+                    <Form.Control.Feedback type="invalid">{errors.nombre}</Form.Control.Feedback>
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="comentario">
+                    <Form.Label>Comentario</Form.Label>
+                    <Form.Control as="textarea" rows={3} name="comentario" value={form.comentario} onChange={handleChange} isInvalid={!!errors.comentario} placeholder="Escribe tu opinión..." />
+                    <Form.Control.Feedback type="invalid">{errors.comentario}</Form.Control.Feedback>
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="estrellas">
+                    <Form.Label>Calificación</Form.Label>
+                    <Form.Select name="estrellas" value={form.estrellas} onChange={handleChange} isInvalid={!!errors.estrellas}>
+                      <option value="">Selecciona estrellas</option>
+                      <option value="1">1 — ⭐</option>
+                      <option value="2">2 — ⭐⭐</option>
+                      <option value="3">3 — ⭐⭐⭐</option>
+                      <option value="4">4 — ⭐⭐⭐⭐</option>
+                      <option value="5">5 — ⭐⭐⭐⭐⭐</option>
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">{errors.estrellas}</Form.Control.Feedback>
+                  </Form.Group>
+                  <div className="d-flex gap-2">
+                    <Button type="submit">Enviar reseña</Button>
+                    <Button variant="outline-secondary" onClick={() => { setForm({ ...form, comentario: "", estrellas: "" }); setErrors({}); }}>Limpiar</Button>
+                  </div>
+                </Form>
+              </Card.Body>
+            </Card>
+          ) : (
+            <Alert variant="warning">Debes <a href="/login">iniciar sesión</a> para dejar una reseña.</Alert>
+          )}
         </Col>
 
         <Col md={6}>

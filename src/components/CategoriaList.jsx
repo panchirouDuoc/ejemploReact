@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Form, InputGroup, Row, Col } from 'react-bootstrap';
+import { Container, Table, Button, Form, InputGroup, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuth } from '../auth/AuthContext';
 
@@ -46,42 +46,46 @@ const CategoriaList = () => {
     };
 
     return (
-        <div>
-            <h2>Gestionar Categorías</h2>
-            <Form onSubmit={handleAddCategoria} className="mb-4">
-                <Row>
-                    <Col md={6}>
-                        <InputGroup>
-                            <Form.Control
-                                type="text"
-                                value={nombreNuevaCategoria}
-                                onChange={(e) => setNombreNuevaCategoria(e.target.value)}
-                                placeholder="Nombre de la nueva categoría"
-                            />
-                            <Button type="submit" variant="primary">Agregar</Button>
-                        </InputGroup>
-                    </Col>
-                </Row>
-            </Form>
-            <Table striped bordered hover responsive>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th className="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {categorias.map(cat => (
-                        <tr key={cat.id}>
-                            <td>{cat.nombre}</td>
-                            <td className="text-center">
-                                <Button onClick={() => handleDeleteCategoria(cat.id)} variant="outline-danger" size="sm">Eliminar</Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </div>
+        <Container className="my-4">
+            <Row className="justify-content-center">
+                <Col md={10} lg={8}>
+                    <h2 className="text-center mb-4">Gestionar Categorías</h2>
+                    <Form onSubmit={handleAddCategoria} className="mb-4">
+                        <Row className="justify-content-center">
+                            <Col xs={12} md={8}>
+                                <InputGroup>
+                                    <Form.Control
+                                        type="text"
+                                        value={nombreNuevaCategoria}
+                                        onChange={(e) => setNombreNuevaCategoria(e.target.value)}
+                                        placeholder="Nombre de la nueva categoría"
+                                    />
+                                    <Button type="submit" variant="primary">Agregar</Button>
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </Form>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th className="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {categorias.map(cat => (
+                                <tr key={cat.id}>
+                                    <td>{cat.nombre}</td>
+                                    <td className="text-center">
+                                        <Button onClick={() => handleDeleteCategoria(cat.id)} variant="outline-danger" size="sm">Eliminar</Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Col>
+            </Row>
+        </Container>
     );
 };
 

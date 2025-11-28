@@ -10,7 +10,7 @@ export default function Productos({ onAdd }) {
     const [categorias, setCategorias] = useState([]);
 
     useEffect(() => {
-        ProductoService.getAllProductos()
+        ProductoService.getAllPublicProductos()
             .then(response => {
                 setAllProducts(response.data);
                 setFilteredProducts(response.data);

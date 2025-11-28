@@ -1,7 +1,8 @@
-import axios from "axios";
-const baseUrl = "http://localhost:8080/api/productos";
+import axios from 'axios';
 
-const getConfig = (token) => {
+const API_URL = 'http://localhost:8080/api/productos';
+
+const createAuthHeaders = (token) => {
     return {
         headers: {
             'Authorization': `Bearer ${token}`
@@ -9,27 +10,32 @@ const getConfig = (token) => {
     };
 };
 
-class ProductoService {
+const ProductoService = {
+    // publico
+    getAllPublicProductos: () => {
+        return axios.get(API_URL);
+    },
 
-    getAllProductos() {
-        return axios.get(baseUrl);
+    // Admin
+    getAllProductos: (token) => {
+        return axios.get(API_URL, createAuthHeaders(token));
+    },
+
+    getProductoById: (id) => {
+        return axios.get(`${API_URL}/${id}`);
+    },
+
+    createProducto: (producto, token) => {
+        return axios.post(API_URL, producto, createAuthHeaders(token));
+    },
+
+    updateProducto: (id, producto, token) => {
+        return axios.put(`${API_URL}/${id}`, producto, createAuthHeaders(token));
+    },
+
+    deleteProducto: (id, token) => {
+        return axios.delete(`${API_URL}/${id}`, createAuthHeaders(token));
     }
+};
 
-    getProductoById(id) {
-        return axios.get(`${baseUrl}/${id}`);
-    }
-
-    createProducto(producto, token) {
-        return axios.post(baseUrl, producto, getConfig(token));
-    }
-
-    updateProducto(id, producto, token) {
-        return axios.put(`${baseUrl}/${id}`, producto, getConfig(token));
-    }
-
-    deleteProducto(id, token) {
-        return axios.delete(`${baseUrl}/${id}`, getConfig(token));
-    } 
-}
-
-export default new ProductoService();
+export default ProductoService;

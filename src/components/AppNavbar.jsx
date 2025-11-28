@@ -39,7 +39,7 @@ export default function AppNavbar({cart}) {
                             <NavDropdown.Item as={NavLink} to="/resenias">
                                 Reseñas
                             </NavDropdown.Item>
-                            {user?.role === 'admin' && (
+                            {user?.rol === 'ROLE_ADMIN' &&(
                                 <>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item as={NavLink} to="/admin">Panel Admin</NavDropdown.Item></>)}
